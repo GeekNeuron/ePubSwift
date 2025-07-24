@@ -1,0 +1,129 @@
+/* Dark Theme for ePub Swift - Based on user-provided palette */
+
+QMainWindow, QDialog {
+    background-color: #161b22; /* --container-bg */
+    color: #c9d1d9;            /* --text-color-primary */
+}
+
+/* Menu Bar Styling */
+QMenuBar {
+    background-color: #161b22;
+    color: #c9d1d9;
+    border-bottom: 1px solid #2c3a47;
+}
+
+QMenuBar::item:selected {
+    background-color: #2c3a47;
+}
+
+QMenu {
+    background-color: #161b22;
+    border: 1px solid #2c3a47;
+}
+
+QMenu::item:selected {
+    background-color: #3282b8; /* --button-bg */
+}
+
+/* Main Content Widgets */
+QListWidget, QTextBrowser {
+    background-color: #0d1117; /* --body-bg */
+    color: #c9d1d9;
+    border: 1px solid #2c3a47;
+    font-size: 14px;
+}
+
+QListWidget {
+    padding: 5px;
+}
+
+QListWidget::item {
+    padding: 8px;
+    border-radius: 4px;
+}
+
+QListWidget::item:hover {
+    background-color: #1e2732; /* --grid-bg */
+}
+
+QListWidget::item:selected {
+    background-color: #274c77; /* --score-box-bg */
+    color: #e0e6eb;            /* --score-box-text */
+}
+
+/* Splitter Handle */
+QSplitter::handle {
+    background-color: #1e2732;
+    width: 2px;
+}
+QSplitter::handle:hover {
+    background-color: #3282b8;
+}
+QSplitter::handle:pressed {
+    background-color: #1d4357;
+}
+
+/* ScrollBar Styling */
+QScrollBar:vertical, QScrollBar:horizontal {
+    border: none;
+    background: #161b22;
+    width: 12px;
+    height: 12px;
+    margin: 0px 0px 0px 0px;
+}
+
+QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+    background: #2c3a47;
+    min-height: 20px;
+    min-width: 20px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical:hover, QScrollBar::handle:horizontal:hover {
+    background: #3282b8;
+}
+
+QScrollBar::add-line, QScrollBar::sub-line {
+    border: none;
+    background: none;
+    height: 0;
+    width: 0;
+}
+
+/* Buttons and Dialogs */
+QPushButton {
+    background-color: #3282b8; /* --button-bg */
+    color: #ffffff;            /* --button-text */
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: #1d4357; /* --button-hover-bg */
+}
+
+QPushButton:pressed {
+    background-color: #274c77;
+}
+
+QComboBox {
+    background-color: #2c3a47;
+    border: 1px solid #3282b8;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+QComboBox::drop-down {
+    border: none;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #2c3a47;
+    border: 1px solid #3282b8;
+    selection-background-color: #3282b8;
+}
+
+QLabel {
+    padding-top: 5px;
+}
