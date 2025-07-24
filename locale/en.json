@@ -1,0 +1,16 @@
+{
+    "app_title": "ePub Swift",
+    "file_menu": "&File",
+    "settings_menu": "&Settings",
+    "open_epub": "&Open ePub...",
+    "exit": "E&xit",
+    "settings_title": "Settings",
+    "language": "Language:",
+    "font": "Font:",
+    "select_font": "Select Font...",
+    "current_font": "Current Font:",
+    "error_title": "Error",
+    "error_loading_book": "Could not load the book: {error}",
+    "settings_changed_title": "Settings Changed",
+    "settings_changed_message": "Please restart the application to see all language changes."
+}
