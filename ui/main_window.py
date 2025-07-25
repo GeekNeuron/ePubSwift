@@ -303,10 +303,6 @@ class EpubReader(QMainWindow):
         if file_path and file_path != self.current_book_path:
             self.load_book(file_path)
 
-#### ۶. فایل `main.py`
-و در نهایت، فایل اصلی برای اجرای برنامه.
-
-```python
 # main.py
 import sys
 from PySide6.QtWidgets import QApplication
