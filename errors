@@ -1,0 +1,113 @@
+
+C:\Users\Vatan\Desktop\py\11\ePubSwift-main>pyinstaller --onefile --windowed --name="ePub_Swift" --icon="assets/icons/app_icon.png" --add-data="assets;assets" --additional-hooks-dir=hooks main.py
+39 DEPRECATION: Running PyInstaller as admin is not necessary nor sensible. Run PyInstaller from a non-administrator terminal. PyInstaller 7.0 will block this.
+248 INFO: PyInstaller: 6.14.2, contrib hooks: 2025.7
+248 INFO: Python: 3.9.13
+258 INFO: Platform: Windows-10-10.0.19041-SP0
+258 INFO: Python environment: C:\Users\Vatan\AppData\Local\Programs\Python\Python39
+260 INFO: wrote C:\Users\Vatan\Desktop\py\11\ePubSwift-main\ePub_Swift.spec
+264 INFO: Module search paths (PYTHONPATH):
+['C:\\Users\\Vatan\\AppData\\Local\\Programs\\Python\\Python39\\Scripts\\pyinstaller.exe',
+ 'C:\\Users\\Vatan\\AppData\\Local\\Programs\\Python\\Python39\\python39.zip',
+ 'C:\\Users\\Vatan\\AppData\\Local\\Programs\\Python\\Python39\\DLLs',
+ 'C:\\Users\\Vatan\\AppData\\Local\\Programs\\Python\\Python39\\lib',
+ 'C:\\Users\\Vatan\\AppData\\Local\\Programs\\Python\\Python39',
+ 'C:\\Users\\Vatan\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages',
+ 'C:\\Users\\Vatan\\Desktop\\py\\11\\ePubSwift-main']
+684 INFO: Appending 'datas' from .spec
+686 INFO: checking Analysis
+686 INFO: Building Analysis because Analysis-00.toc is non existent
+686 INFO: Running Analysis Analysis-00.toc
+686 INFO: Target bytecode optimization level: 0
+687 INFO: Initializing module dependency graph...
+688 INFO: Initializing module graph hook caches...
+775 INFO: Analyzing modules for base_library.zip ...
+2169 INFO: Processing standard module hook 'hook-encodings.py' from 'C:\\Users\\Vatan\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PyInstaller\\hooks'
+3935 INFO: Processing standard module hook 'hook-pickle.py' from 'C:\\Users\\Vatan\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PyInstaller\\hooks'
+5172 INFO: Processing standard module hook 'hook-heapq.py' from 'C:\\Users\\Vatan\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PyInstaller\\hooks'
+5643 INFO: Caching module dependency graph...
+5724 INFO: Looking for Python shared library...
+5736 INFO: Using Python shared library: C:\Users\Vatan\AppData\Local\Programs\Python\Python39\python39.dll
+5736 INFO: Analyzing C:\Users\Vatan\Desktop\py\11\ePubSwift-main\main.py
+5745 INFO: Processing standard module hook 'hook-PySide6.py' from 'C:\\Users\\Vatan\\Desktop\\py\\11\\ePubSwift-main\\hooks'
+Traceback (most recent call last):
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\importlib_metadata\__init__.py", line 463, in from_name
+    return next(iter(cls._prefer_valid(cls.discover(name=name))))
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\depend\imphook.py", line 422, in _load_hook_module
+    self._hook_module = importlib_load_source(self.hook_module_name, self.hook_filename)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\compat.py", line 615, in importlib_load_source
+    mod_loader.exec_module(mod)
+  File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+  File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+  File "C:\Users\Vatan\Desktop\py\11\ePubSwift-main\hooks\hook-PySide6.py", line 6, in <module>
+    datas = copy_metadata('PySide6')
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\utils\hooks\__init__.py", line 969, in copy_metadata
+    dist = importlib_metadata.distribution(package_name)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\importlib_metadata\__init__.py", line 1043, in distribution
+    return Distribution.from_name(distribution_name)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\importlib_metadata\__init__.py", line 465, in from_name
+    raise PackageNotFoundError(name)
+importlib_metadata.PackageNotFoundError: No package metadata was found for PySide6
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\Scripts\pyinstaller.exe\__main__.py", line 7, in <module>
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\__main__.py", line 231, in _console_script_run
+    run()
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\__main__.py", line 215, in run
+    run_build(pyi_config, spec_file, **vars(args))
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\__main__.py", line 70, in run_build
+    PyInstaller.building.build_main.main(pyi_config, spec_file, **kwargs)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\building\build_main.py", line 1282, in main
+    build(specfile, distpath, workpath, clean_build)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\building\build_main.py", line 1220, in build
+    exec(code, spec_namespace)
+  File "C:\Users\Vatan\Desktop\py\11\ePubSwift-main\ePub_Swift.spec", line 4, in <module>
+    a = Analysis(
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\building\build_main.py", line 584, in __init__
+    self.__postinit__()
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\building\datastruct.py", line 184, in __postinit__
+    self.assemble()
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\building\build_main.py", line 716, in assemble
+    program_scripts.append(self.graph.add_script(script))
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\depend\analysis.py", line 283, in add_script
+    self._top_script_node = super().add_script(pathname)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\lib\modulegraph\modulegraph.py", line 1186, in add_script
+    self._process_imports(n)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\lib\modulegraph\modulegraph.py", line 2638, in _process_imports
+    target_modules = self._safe_import_hook(*import_info, **kwargs)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\depend\analysis.py", line 454, in _safe_import_hook
+    ret_modules = super()._safe_import_hook(
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\lib\modulegraph\modulegraph.py", line 2095, in _safe_import_hook
+    target_modules = self.import_hook(
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\lib\modulegraph\modulegraph.py", line 1258, in import_hook
+    target_package, target_module_partname = self._find_head_package(
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\lib\modulegraph\modulegraph.py", line 1437, in _find_head_package
+    target_package = self._safe_import_module(
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\depend\analysis.py", line 516, in _safe_import_module
+    return super()._safe_import_module(module_basename, module_name, parent_package)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\lib\modulegraph\modulegraph.py", line 1818, in _safe_import_module
+    self._process_imports(n)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\lib\modulegraph\modulegraph.py", line 2638, in _process_imports
+    target_modules = self._safe_import_hook(*import_info, **kwargs)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\depend\analysis.py", line 385, in _safe_import_hook
+    excluded_imports = self._find_all_excluded_imports(source_module.identifier)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\depend\analysis.py", line 373, in _find_all_excluded_imports
+    excluded_imports.update(module_hook.excludedimports)
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\depend\imphook.py", line 343, in __getattr__
+    self._load_hook_module()
+  File "C:\Users\Vatan\AppData\Local\Programs\Python\Python39\lib\site-packages\PyInstaller\depend\imphook.py", line 425, in _load_hook_module
+    raise ImportErrorWhenRunningHook(self.hook_module_name, self.hook_filename)
+PyInstaller.exceptions.ImportErrorWhenRunningHook: ERROR: Failed to import module __PyInstaller_hooks_0_PySide6 required by hook for module C:\Users\Vatan\Desktop\py\11\ePubSwift-main\hooks\hook-PySide6.py. Please check whether module __PyInstaller_hooks_0_PySide6 actually exists and whether the hook is compatible with your version of C:\Users\Vatan\Desktop\py\11\ePubSwift-main\hooks\hook-PySide6.py: You might want to read more about hooks in the manual and provide a pull-request to improve PyInstaller.
+
+C:\Users\Vatan\Desktop\py\11\ePubSwift-main>
