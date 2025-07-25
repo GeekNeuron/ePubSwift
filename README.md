@@ -1,1 +1,1 @@
-pyinstaller --onefile --windowed --name="EpubReader" --add-data "assets;assets" epub_reader.py
+pyinstaller --onefile --windowed --name="ePub_Swift" --icon="assets/icons/app_icon.png" --add-data="assets;assets" main.py
