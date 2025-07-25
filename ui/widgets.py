@@ -85,7 +85,7 @@ class LoadingSpinner(QWidget):
         painter.setPen(pen)
         
         # Draw an arc
-        painter.drawArc(QRect(-30, -30, 60, 60), 0, 270 * 16)
+        painter.drawArc(QRect(-20, -20, 40, 40), 0, 270 * 16)
 
     def start_animation(self):
         if self.parent():
