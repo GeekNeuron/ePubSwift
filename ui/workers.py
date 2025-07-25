@@ -14,35 +14,32 @@ class BookLoaderWorker(QObject):
 
     def run(self):
         """
-        Loads the EPUB and calculates progress data using a much faster method
-        by reading file sizes from the zip archive instead of parsing every file.
+        Loads the EPUB using the stable method. This is slightly slower but
+        compatible with all versions of the ebooklib.
         """
         try:
-            book = epub.read_epub(self.file_path, ignore_ncx=True)
+            # Reverted: The problematic 'ignore_ncx' argument is removed.
+            book = epub.read_epub(self.file_path)
             
-            # --- Metadata Extraction (fast) ---
+            # --- Metadata Extraction ---
             book_title_meta = book.get_metadata('DC', 'title')
             title = book_title_meta[0][0] if book_title_meta else os.path.basename(self.file_path)
             chapters = [{'title': item.title, 'href': item.href} for item in book.toc if isinstance(item, epub.Link)]
 
-            # --- OPTIMIZED Progress Calculation (very fast) ---
-            # Create a map of file names to their uncompressed sizes
-            size_map = {info.filename: info.file_size for info in book.epub.infolist()}
-            
+            # --- Stable Progress Calculation ---
             total_len = 0
             chap_lens = []
             cum_lens = [0]
             
-            # Use the book's spine to determine the reading order and content length
             spine_items = [book.get_item_with_id(item_id) for item_id, _ in book.spine]
             
             for item in spine_items:
-                # Get the file size from the map instead of reading/parsing the file
-                if item and item.file_name in size_map:
-                    # Use the file size as a proxy for content length
-                    length = size_map[item.file_name]
-                    chap_lens.append(length)
-                    total_len += length
+                if item and item.get_type() == ebooklib.ITEM_DOCUMENT:
+                    # This is the stable method: read content and get text length.
+                    content = item.get_content()
+                    text_len = len(BeautifulSoup(content, 'html.parser').get_text(strip=True))
+                    chap_lens.append(text_len)
+                    total_len += text_len
             
             cumulative = 0
             for length in chap_lens:
