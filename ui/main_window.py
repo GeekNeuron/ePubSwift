@@ -132,7 +132,7 @@ class EpubReader(QMainWindow):
         self.text_display.setAlignment(Qt.AlignCenter)
 
     def load_book(self, file_path):
-        if not file_path or (self.worker_thread and self.worker_thread.isRunning()):
+        if not file_path:
             return
         
         self.db_manager.save_progress(self.current_book_path, self.get_current_char_position())
@@ -178,6 +178,7 @@ class EpubReader(QMainWindow):
             if book_in_lib and book_in_lib.get('last_read_pos', 0) > 0 and self.total_book_len > 0:
                 percentage = (book_in_lib['last_read_pos'] / self.total_book_len) * 100
                 self.jump_to_position(percentage)
+                self.worker_thread = none
 
     def display_chapter(self, current_item):
         # ... (display_chapter without <hr> injection) ...
