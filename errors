@@ -1,10 +1,9 @@
 C:\Users\Vatan\Desktop\py\11\ePubSwift-main>python main.py
 Traceback (most recent call last):
-  File "C:\Users\Vatan\Desktop\py\11\ePubSwift-main\main.py", line 12, in <module>
-    from ui.main_window import EpubReader
-  File "C:\Users\Vatan\Desktop\py\11\ePubSwift-main\ui\main_window.py", line 306
-    و در نهایت، فایل اصلی برای اجرای برنامه.
-       ^
-SyntaxError: invalid syntax
+  File "C:\Users\Vatan\Desktop\py\11\ePubSwift-main\ui\main_window.py", line 280, in open_file_dialog
+    self.load_book(file_path)
+  File "C:\Users\Vatan\Desktop\py\11\ePubSwift-main\ui\main_window.py", line 135, in load_book
+    if not file_path or (self.worker_thread and self.worker_thread.isRunning()):
+RuntimeError: Internal C++ object (PySide6.QtCore.QThread) already deleted.
 
 C:\Users\Vatan\Desktop\py\11\ePubSwift-main>
