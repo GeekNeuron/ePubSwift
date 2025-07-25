@@ -6,7 +6,7 @@ from utils.helpers import get_base_path
 class DatabaseManager:
     def __init__(self, db_name="epub_swift.db"):
         # Use the helper to ensure the db is created in the correct location
-        base_path = os.path.dirname(get_base_path())
+        base_path = get_base_path()
         self.db_path = os.path.join(base_path, db_name)
         self._setup_database()
 
