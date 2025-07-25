@@ -1,3 +1,10 @@
+C:\Users\Vatan\Desktop\py\11\ePubSwift-main>python main.py
 Traceback (most recent call last):
-  File "main.py", line 12, in <module>
-ModuleNotFoundError: No module named 'ui.main_window'
+  File "C:\Users\Vatan\Desktop\py\11\ePubSwift-main\main.py", line 12, in <module>
+    from ui.main_window import EpubReader
+  File "C:\Users\Vatan\Desktop\py\11\ePubSwift-main\ui\main_window.py", line 306
+    و در نهایت، فایل اصلی برای اجرای برنامه.
+       ^
+SyntaxError: invalid syntax
+
+C:\Users\Vatan\Desktop\py\11\ePubSwift-main>
