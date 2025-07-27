@@ -59,9 +59,6 @@ class EpubReader(QMainWindow):
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        # --- Drag and Drop Fix ---
-        # Allow the central widget to accept drops so events reach the main window
-        central_widget.setAcceptDrops(True)
         
         main_layout = QHBoxLayout(central_widget)
         self.left_panel = QTabWidget()
@@ -86,6 +83,7 @@ class EpubReader(QMainWindow):
         self.progress_bar.jump_requested.connect(self.jump_to_position)
         right_layout.addWidget(self.text_display)
         right_layout.addWidget(self.progress_bar)
+        
         splitter = QSplitter(Qt.Horizontal)
         splitter.addWidget(self.left_panel)
         splitter.addWidget(right_panel_widget)
@@ -93,6 +91,11 @@ class EpubReader(QMainWindow):
         splitter.setStretchFactor(1, 1)
         splitter.setHandleWidth(2)
         main_layout.addWidget(splitter)
+        
+        # --- Drag and Drop Fix ---
+        # Enable dropping on the main widgets that cover the window area
+        self.text_display.setAcceptDrops(True)
+        self.left_panel.setAcceptDrops(True)
 
     def apply_styles(self):
         self.setStyleSheet("""
@@ -126,6 +129,7 @@ class EpubReader(QMainWindow):
         dialog.exec()
         
     def dragEnterEvent(self, event):
+        # This event handler is for the QMainWindow itself
         if event.mimeData().hasUrls():
             for url in event.mimeData().urls():
                 if url.isLocalFile() and url.toLocalFile().lower().endswith('.epub'):
@@ -134,6 +138,7 @@ class EpubReader(QMainWindow):
         event.ignore()
 
     def dropEvent(self, event):
+        # This event handler is for the QMainWindow itself
         urls = event.mimeData().urls()
         if urls:
             for url in urls:
@@ -154,29 +159,32 @@ class EpubReader(QMainWindow):
         event.accept()
 
     def show_welcome_message(self):
-        """Displays a fully centered and restyled welcome message."""
+        """Displays a fully centered and restyled welcome message using a table layout."""
         self.text_display.setHtml("""
-            <body style='margin:0; padding:0; height:100%;'>
-                <div style='display:flex; align-items:center; justify-content:center; height:90%;
-                            text-align:center; color:#7f8c8d; font-family:sans-serif;'>
-                    <div>
-                        <h1 style='font-size:22px; font-weight:bold; color:#2c3e50;'>Welcome to ePub Swift</h1>
-                        <p style='font-size:13px; line-height:1.6;'>
-                            Load a book from the <span class='key'>File</span> menu, press <span class='key'>Ctrl</span> + <span class='key'>O</span>
-                        </p>
-                        <p style='font-size:13px; line-height:1.6;'>
-                            or simply <b>drag and drop</b> an EPUB file here.
-                        </p>
-                        <style>
-                            .key {
-                                background-color: #e9e9ed; border: 1px solid #d1d1d1; border-radius: 4px;
-                                padding: 2px 6px; font-size: 11px;
-                                font-family: "Segoe UI", "Vazirmatn", monospace;
-                                color: #333;
-                            }
-                        </style>
-                    </div>
-                </div>
+            <body style='margin:0; padding:0;'>
+                <table style='width:100%; height:95%;'>
+                    <tr>
+                        <td style='vertical-align:middle; text-align:center;'>
+                            <div>
+                                <h1 style='font-size:22px; font-weight:bold; color:#2c3e50;'>Welcome to ePub Swift</h1>
+                                <p style='font-size:13px; line-height:1.6;'>
+                                    Load a book from the <span class='key'>File</span> menu, press <span class='key'>Ctrl</span> + <span class='key'>O</span>
+                                </p>
+                                <p style='font-size:13px; line-height:1.6;'>
+                                    or simply <b>drag and drop</b> an EPUB file here.
+                                </p>
+                                <style>
+                                    .key {
+                                        background-color: #e9e9ed; border: 1px solid #d1d1d1; border-radius: 4px;
+                                        padding: 2px 6px; font-size: 11px;
+                                        font-family: "Segoe UI", "Vazirmatn", monospace;
+                                        color: #333;
+                                    }
+                                </style>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
             </body>
         """)
 
@@ -297,7 +305,6 @@ class EpubReader(QMainWindow):
             scrollbar.setValue(new_scroll_value)
 
     def load_assets(self):
-        # Correctly find the project root from the ui subdirectory
         base_path = os.path.dirname(os.path.abspath(__file__))
         project_root = os.path.abspath(os.path.join(base_path, '..'))
         
