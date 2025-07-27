@@ -101,16 +101,24 @@ class LoadingSpinner(QWidget):
 
 
 class AboutDialog(QDialog):
-    """A dialog to show application information and developer links."""
+    """A dialog to show application information, styled to match the main UI."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("About ePub Swift")
         self.setFixedSize(380, 220)
         self.setWindowModality(Qt.ApplicationModal)
-
-        layout = QVBoxLayout(self)
-        layout.setAlignment(Qt.AlignCenter)
         
+        # Main layout for the dialog
+        main_layout = QVBoxLayout(self)
+        
+        # Card widget to hold the content, styled like the main UI
+        card_widget = QWidget(self)
+        card_widget.setObjectName("Card")
+        
+        content_layout = QVBoxLayout(card_widget)
+        content_layout.setAlignment(Qt.AlignCenter)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+
         title_font = self.font()
         title_font.setPointSize(16)
         title_font.setBold(True)
@@ -125,6 +133,7 @@ class AboutDialog(QDialog):
         support_label = QLabel("For support, contributions, and contact:")
         support_label.setAlignment(Qt.AlignCenter)
 
+        # Container for social links
         links_widget = QWidget()
         links_layout = QHBoxLayout(links_widget)
         links_layout.setAlignment(Qt.AlignCenter)
@@ -146,14 +155,25 @@ class AboutDialog(QDialog):
         links_layout.addWidget(telegram_label)
         links_layout.addWidget(twitter_label)
         
-        close_button = QPushButton("Close")
-        close_button.clicked.connect(self.accept)
-        close_button.setFixedWidth(100)
+        content_layout.addWidget(title_label)
+        content_layout.addWidget(dev_label)
+        content_layout.addSpacing(20)
+        content_layout.addWidget(support_label)
+        content_layout.addWidget(links_widget)
+        content_layout.addStretch()
 
-        layout.addWidget(title_label)
-        layout.addWidget(dev_label)
-        layout.addSpacing(20)
-        layout.addWidget(support_label)
-        layout.addWidget(links_widget)
-        layout.addStretch()
-        layout.addWidget(close_button, 0, Qt.AlignCenter)
+        main_layout.addWidget(card_widget)
+
+        # Apply stylesheet to match the main application theme
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f2f3f7;
+            }
+            QWidget#Card {
+                background-color: #ffffff;
+                border-radius: 8px;
+            }
+            QLabel {
+                color: #2c3e50;
+            }
+        """)
