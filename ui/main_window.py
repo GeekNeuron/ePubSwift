@@ -1,11 +1,10 @@
-# ui/main_window.py
 import os
 from PySide6.QtWidgets import (
-    QMainWindow, QFileDialog, QTextBrowser, QListWidget, QWidget, 
+    QMainWindow, QFileDialog, QTextBrowser, QListWidget, QWidget,
     QVBoxLayout, QHBoxLayout, QSplitter, QTabWidget, QListWidgetItem
 )
 from PySide6.QtGui import QAction, QKeySequence, QFontDatabase, QFont, QIcon
-from PySide6.QtCore import Qt, QThread
+from PySide6.QtCore import Qt, QThread, QTimer
 
 from bs4 import BeautifulSoup
 from database.database_manager import DatabaseManager
@@ -16,9 +15,10 @@ from utils.helpers import is_rtl
 class EpubReader(QMainWindow):
     def __init__(self):
         super().__init__()
-        # ... (Initialize variables) ...
+        # Enable Drag and Drop functionality for the main window
+        self.setAcceptDrops(True)
+        
         self.db_manager = DatabaseManager()
-        # ... (rest of init) ...
         self.book = None
         self.chapters = []
         self.library = []
@@ -39,6 +39,32 @@ class EpubReader(QMainWindow):
         self.load_library_from_db()
         self.show_welcome_message()
 
+    # --- Drag and Drop Event Handlers ---
+
+    def dragEnterEvent(self, event):
+        """This event is called when a dragged object enters the window."""
+        if event.mimeData().hasUrls():
+            # Check if at least one of the files is an .epub file
+            for url in event.mimeData().urls():
+                if url.isLocalFile() and url.toLocalFile().lower().endswith('.epub'):
+                    event.acceptProposedAction()
+                    return
+        event.ignore()
+
+    def dropEvent(self, event):
+        """This event is called when a dragged object is dropped on the window."""
+        urls = event.mimeData().urls()
+        if urls:
+            for url in urls:
+                if url.isLocalFile():
+                    file_path = url.toLocalFile()
+                    if file_path.lower().endswith('.epub'):
+                        # Load the first valid .epub file found
+                        self.load_book(file_path)
+                        event.acceptProposedAction()
+                        return
+        event.ignore()
+        
     def load_library_from_db(self):
         self.library = self.db_manager.load_library()
         self.refresh_library_list()
@@ -49,9 +75,7 @@ class EpubReader(QMainWindow):
         event.accept()
 
     def init_ui(self):
-        # ... (UI setup as before) ...
         self.loading_spinner = LoadingSpinner(self)
-        # (rest of init_ui)
         menu_bar = self.menuBar()
         file_menu = menu_bar.addMenu("File")
         open_action = QAction("Load EPUB (Ctrl+O)", self)
@@ -94,7 +118,6 @@ class EpubReader(QMainWindow):
         main_layout.addWidget(splitter)
         
     def apply_styles(self):
-        # ... (CSS styles as before) ...
         self.setStyleSheet("""
             QProgressBar {
                 border: none; border-radius: 4px; background-color: #e0e0e0; max-height: 14px;
@@ -122,11 +145,38 @@ class EpubReader(QMainWindow):
         """)
 
     def show_welcome_message(self):
-        """Displays a welcome message in the text view when no book is loaded."""
+        """Displays a styled welcome message with key-like buttons and new instructions."""
         self.text_display.setHtml("""
-            <div style='text-align: center; color: #7f8c8d; padding-top: 100px;'>
+            <style>
+                .container {
+                    text-align: center;
+                    color: #7f8c8d;
+                    font-family: sans-serif;
+                    padding-top: 15%;
+                }
+                .container h1 {
+                    font-size: 22px;
+                    font-weight: 500;
+                    color: #2c3e50;
+                }
+                .container p {
+                    font-size: 13px;
+                    line-height: 1.6;
+                }
+                .key {
+                    background-color: #e9e9ed;
+                    border: 1px solid #d1d1d1;
+                    border-radius: 4px;
+                    padding: 2px 6px;
+                    font-size: 11px;
+                    font-family: "Segoe UI", "Vazirmatn", monospace;
+                    color: #333;
+                }
+            </style>
+            <div class='container'>
                 <h1>Welcome to ePub Swift</h1>
-                <p>Load a book from the <b>File</b> menu or by pressing <b>Ctrl+O</b>.</p>
+                <p>Load a book from the <span class='key'>File</span> menu, press <span class='key'>Ctrl</span> + <span class='key'>O</span></p>
+                <p>or simply <b>drag and drop</b> an EPUB file here.</p>
             </div>
         """)
         self.text_display.setAlignment(Qt.AlignCenter)
@@ -135,6 +185,7 @@ class EpubReader(QMainWindow):
         if not file_path:
             return
         
+        # Save progress of the PREVIOUS book before loading a new one
         self.db_manager.save_progress(self.current_book_path, self.get_current_char_position())
         
         self.toc_list.clear()
@@ -169,6 +220,9 @@ class EpubReader(QMainWindow):
         self.update_window_title(result['title'])
         self.update_library(self.current_book_path, result['title'])
         
+        toc_is_rtl = is_rtl(self.chapters[0]['title'] if self.chapters else "")
+        self.toc_list.setLayoutDirection(Qt.RightToLeft if toc_is_rtl else Qt.LeftToRight)
+
         self.toc_list.addItems([f"{i+1}. {c['title']}" for i, c in enumerate(self.chapters)])
 
         if self.toc_list.count() > 0:
@@ -178,10 +232,10 @@ class EpubReader(QMainWindow):
             if book_in_lib and book_in_lib.get('last_read_pos', 0) > 0 and self.total_book_len > 0:
                 percentage = (book_in_lib['last_read_pos'] / self.total_book_len) * 100
                 self.jump_to_position(percentage)
-                self.worker_thread = none
+        self.worker_thread = None
+
 
     def display_chapter(self, current_item):
-        # ... (display_chapter without <hr> injection) ...
         if not current_item or not self.book: return
         self.update_global_progress()
         
@@ -208,7 +262,6 @@ class EpubReader(QMainWindow):
         self.text_display.verticalScrollBar().setValue(0)
 
     def get_current_char_position(self):
-        # ... (Same as before) ...
         if not self.book or self.total_book_len == 0 or self.toc_list.currentRow() < 0:
             return 0
         current_chapter_index = self.toc_list.currentRow()
@@ -221,16 +274,14 @@ class EpubReader(QMainWindow):
         return int(preceding_len + (scroll_progress * current_chapter_len))
 
     def update_global_progress(self):
-        # ... (Same as before) ...
         current_char_pos = self.get_current_char_position()
-        if current_char_pos == 0 and self.total_book_len == 0:
-            global_percentage = 0
-        else:
+        if self.total_book_len > 0:
             global_percentage = (current_char_pos / self.total_book_len) * 100
+        else:
+            global_percentage = 0
         self.progress_bar.setValue(int(global_percentage))
 
     def jump_to_position(self, percentage):
-        # ... (Same as before) ...
         if not self.book or self.total_book_len == 0: return
         target_char_pos = self.total_book_len * (percentage / 100)
         target_chapter_index = -1
@@ -246,50 +297,55 @@ class EpubReader(QMainWindow):
             self.toc_list.setCurrentRow(target_chapter_index)
             self.toc_list.blockSignals(False)
             self.display_chapter(self.toc_list.currentItem())
-        preceding_len = self.cumulative_lens[target_chapter_index]
-        current_chapter_len = self.chapter_lens[target_chapter_index]
+        
+        QTimer.singleShot(50, lambda: self.scroll_to_position_in_chapter(target_char_pos))
+
+    def scroll_to_position_in_chapter(self, target_char_pos):
+        current_chapter_index = self.toc_list.currentRow()
+        if not (0 <= current_chapter_index < len(self.chapter_lens)): return
+
+        preceding_len = self.cumulative_lens[current_chapter_index]
+        current_chapter_len = self.chapter_lens[current_chapter_index]
+        
         if current_chapter_len > 0:
             progress_in_chapter = (target_char_pos - preceding_len) / current_chapter_len
             scrollbar = self.text_display.verticalScrollBar()
             new_scroll_value = int(progress_in_chapter * scrollbar.maximum())
             scrollbar.setValue(new_scroll_value)
-    
+
     def load_assets(self):
-        # ... (Same as before) ...
         base_path = os.path.dirname(os.path.abspath(__file__))
-        font_path = os.path.join(base_path, 'assets', 'fonts', 'Vazirmatn-Medium.ttf')
+        font_path = os.path.join(base_path, '..', 'assets', 'fonts', 'Vazirmatn-Medium.ttf')
         if os.path.exists(font_path):
             font_id = QFontDatabase.addApplicationFont(font_path)
             if font_id != -1:
                 font_families = QFontDatabase.applicationFontFamilies(font_id)
                 app_font = QFont(font_families[0], 10)
                 QApplication.instance().setFont(app_font)
-        icon_path = os.path.join(base_path, 'assets', 'icons', 'app_icon.png')
+        icon_path = os.path.join(base_path, '..', 'assets', 'icons', 'app_icon.png')
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
 
     def update_window_title(self, book_title=None):
-        # ... (Same as before) ...
         if book_title:
             self.setWindowTitle(f"{book_title} - {self.app_name} ({self.author_name})")
         else:
             self.setWindowTitle(f"{self.app_name} ({self.author_name})")
 
     def open_file_dialog(self):
-        # ... (Same as before) ...
         file_path, _ = QFileDialog.getOpenFileName(self, "Select an EPUB File", "", "EPUB Files (*.epub)")
         self.load_book(file_path)
 
     def update_library(self, file_path, book_title):
-        # ... (Same as before) ...
-        if any(b['path'] == file_path for b in self.library): return
+        if any(b['path'] == file_path for b in self.library):
+            return
+
         new_book_data = {'path': file_path, 'title': book_title, 'pages': len(self.chapters), 'last_read_pos': 0}
         self.library.append(new_book_data)
         self.db_manager.add_or_update_book(new_book_data)
         self.refresh_library_list()
 
     def refresh_library_list(self):
-        # ... (Same as before) ...
         self.library_list.clear()
         for book in self.library:
             item_text = f"📖 {book['title']}\n📄 Chapters: {book['pages']}"
@@ -298,18 +354,8 @@ class EpubReader(QMainWindow):
             self.library_list.addItem(list_item)
     
     def load_book_from_library(self, item):
-        # ... (Same as before) ...
+        self.db_manager.save_progress(self.current_book_path, self.get_current_char_position())
+        
         file_path = item.data(Qt.UserRole)
         if file_path and file_path != self.current_book_path:
             self.load_book(file_path)
-
-# main.py
-import sys
-from PySide6.QtWidgets import QApplication
-from ui.main_window import EpubReader
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    reader = EpubReader()
-    reader.show()
-    sys.exit(app.exec())
