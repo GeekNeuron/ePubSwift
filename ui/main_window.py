@@ -1,6 +1,7 @@
+# ui/main_window.py
 import os
 from PySide6.QtWidgets import (
-    QMainWindow, QFileDialog, QTextBrowser, QListWidget, QWidget,
+    QApplication, QMainWindow, QFileDialog, QTextBrowser, QListWidget, QWidget,
     QVBoxLayout, QHBoxLayout, QSplitter, QTabWidget, QListWidgetItem
 )
 from PySide6.QtGui import QAction, QKeySequence, QFontDatabase, QFont, QIcon
@@ -8,14 +9,13 @@ from PySide6.QtCore import Qt, QThread, QTimer
 
 from bs4 import BeautifulSoup
 from database.database_manager import DatabaseManager
-from ui.widgets import ClickableProgressBar, LoadingSpinner
+from ui.widgets import ClickableProgressBar, LoadingSpinner, AboutDialog
 from ui.workers import BookLoaderWorker
 from utils.helpers import is_rtl
 
 class EpubReader(QMainWindow):
     def __init__(self):
         super().__init__()
-        # Enable Drag and Drop functionality for the main window
         self.setAcceptDrops(True)
         
         self.db_manager = DatabaseManager()
@@ -39,51 +39,24 @@ class EpubReader(QMainWindow):
         self.load_library_from_db()
         self.show_welcome_message()
 
-    # --- Drag and Drop Event Handlers ---
-
-    def dragEnterEvent(self, event):
-        """This event is called when a dragged object enters the window."""
-        if event.mimeData().hasUrls():
-            # Check if at least one of the files is an .epub file
-            for url in event.mimeData().urls():
-                if url.isLocalFile() and url.toLocalFile().lower().endswith('.epub'):
-                    event.acceptProposedAction()
-                    return
-        event.ignore()
-
-    def dropEvent(self, event):
-        """This event is called when a dragged object is dropped on the window."""
-        urls = event.mimeData().urls()
-        if urls:
-            for url in urls:
-                if url.isLocalFile():
-                    file_path = url.toLocalFile()
-                    if file_path.lower().endswith('.epub'):
-                        # Load the first valid .epub file found
-                        self.load_book(file_path)
-                        event.acceptProposedAction()
-                        return
-        event.ignore()
-        
-    def load_library_from_db(self):
-        self.library = self.db_manager.load_library()
-        self.refresh_library_list()
-        
-    def closeEvent(self, event):
-        """Saves progress when the application is about to close."""
-        self.db_manager.save_progress(self.current_book_path, self.get_current_char_position())
-        event.accept()
-
     def init_ui(self):
         self.loading_spinner = LoadingSpinner(self)
         menu_bar = self.menuBar()
+        
         file_menu = menu_bar.addMenu("File")
         open_action = QAction("Load EPUB (Ctrl+O)", self)
         open_action.setShortcut(QKeySequence("Ctrl+O"))
         open_action.triggered.connect(self.open_file_dialog)
         file_menu.addAction(open_action)
-        menu_bar.addMenu("Edit")
+        
+        menu_bar.addMenu("Tools")
         menu_bar.addMenu("Settings")
+        
+        info_menu = menu_bar.addMenu("Info")
+        about_action = QAction("About ePub Swift", self)
+        about_action.triggered.connect(self.show_about_dialog)
+        info_menu.addAction(about_action)
+
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         main_layout = QHBoxLayout(central_widget)
@@ -116,7 +89,7 @@ class EpubReader(QMainWindow):
         splitter.setStretchFactor(1, 1)
         splitter.setHandleWidth(2)
         main_layout.addWidget(splitter)
-        
+
     def apply_styles(self):
         self.setStyleSheet("""
             QProgressBar {
@@ -144,32 +117,49 @@ class EpubReader(QMainWindow):
             QScrollBar::handle:vertical:hover { background: #95a5a6; }
         """)
 
+    def show_about_dialog(self):
+        dialog = AboutDialog(self)
+        dialog.exec()
+        
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            for url in event.mimeData().urls():
+                if url.isLocalFile() and url.toLocalFile().lower().endswith('.epub'):
+                    event.acceptProposedAction()
+                    return
+        event.ignore()
+
+    def dropEvent(self, event):
+        urls = event.mimeData().urls()
+        if urls:
+            for url in urls:
+                if url.isLocalFile():
+                    file_path = url.toLocalFile()
+                    if file_path.lower().endswith('.epub'):
+                        self.load_book(file_path)
+                        event.acceptProposedAction()
+                        return
+        event.ignore()
+        
+    def load_library_from_db(self):
+        self.library = self.db_manager.load_library()
+        self.refresh_library_list()
+        
+    def closeEvent(self, event):
+        self.db_manager.save_progress(self.current_book_path, self.get_current_char_position())
+        event.accept()
+
     def show_welcome_message(self):
-        """Displays a styled welcome message with key-like buttons and new instructions."""
         self.text_display.setHtml("""
             <style>
                 .container {
-                    text-align: center;
-                    color: #7f8c8d;
-                    font-family: sans-serif;
-                    padding-top: 15%;
+                    text-align: center; color: #7f8c8d; font-family: sans-serif; padding-top: 15%;
                 }
-                .container h1 {
-                    font-size: 22px;
-                    font-weight: 500;
-                    color: #2c3e50;
-                }
-                .container p {
-                    font-size: 13px;
-                    line-height: 1.6;
-                }
+                .container h1 { font-size: 22px; font-weight: 500; color: #2c3e50; }
+                .container p { font-size: 13px; line-height: 1.6; }
                 .key {
-                    background-color: #e9e9ed;
-                    border: 1px solid #d1d1d1;
-                    border-radius: 4px;
-                    padding: 2px 6px;
-                    font-size: 11px;
-                    font-family: "Segoe UI", "Vazirmatn", monospace;
+                    background-color: #e9e9ed; border: 1px solid #d1d1d1; border-radius: 4px;
+                    padding: 2px 6px; font-size: 11px; font-family: "Segoe UI", "Vazirmatn", monospace;
                     color: #333;
                 }
             </style>
@@ -185,7 +175,6 @@ class EpubReader(QMainWindow):
         if not file_path:
             return
         
-        # Save progress of the PREVIOUS book before loading a new one
         self.db_manager.save_progress(self.current_book_path, self.get_current_char_position())
         
         self.toc_list.clear()
@@ -234,7 +223,6 @@ class EpubReader(QMainWindow):
                 self.jump_to_position(percentage)
         self.worker_thread = None
 
-
     def display_chapter(self, current_item):
         if not current_item or not self.book: return
         self.update_global_progress()
@@ -262,8 +250,7 @@ class EpubReader(QMainWindow):
         self.text_display.verticalScrollBar().setValue(0)
 
     def get_current_char_position(self):
-        if not self.book or self.total_book_len == 0 or self.toc_list.currentRow() < 0:
-            return 0
+        if not self.book or self.total_book_len == 0 or self.toc_list.currentRow() < 0: return 0
         current_chapter_index = self.toc_list.currentRow()
         if not (0 <= current_chapter_index < len(self.cumulative_lens) - 1): return 0
         scrollbar = self.text_display.verticalScrollBar()
@@ -327,10 +314,8 @@ class EpubReader(QMainWindow):
             self.setWindowIcon(QIcon(icon_path))
 
     def update_window_title(self, book_title=None):
-        if book_title:
-            self.setWindowTitle(f"{book_title} - {self.app_name} ({self.author_name})")
-        else:
-            self.setWindowTitle(f"{self.app_name} ({self.author_name})")
+        if book_title: self.setWindowTitle(f"{book_title} - {self.app_name} ({self.author_name})")
+        else: self.setWindowTitle(f"{self.app_name} ({self.author_name})")
 
     def open_file_dialog(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Select an EPUB File", "", "EPUB Files (*.epub)")
