@@ -16,9 +16,8 @@ from utils.helpers import is_rtl
 class EpubReader(QMainWindow):
     def __init__(self):
         super().__init__()
-        # Enable Drag and Drop for the main window
         self.setAcceptDrops(True)
-        # ... (rest of __init__ is the same)
+        
         self.db_manager = DatabaseManager()
         self.book = None
         self.chapters = []
@@ -30,9 +29,11 @@ class EpubReader(QMainWindow):
         self.chapter_lens = []
         self.cumulative_lens = []
         self.worker_thread = None
+        
         self.load_assets()
         self.update_window_title()
         self.setWindowState(Qt.WindowMaximized)
+        
         self.init_ui()
         self.apply_styles()
         self.load_library_from_db()
@@ -41,24 +42,27 @@ class EpubReader(QMainWindow):
     def init_ui(self):
         self.loading_spinner = LoadingSpinner(self)
         menu_bar = self.menuBar()
+        
         file_menu = menu_bar.addMenu("File")
         open_action = QAction("Load EPUB (Ctrl+O)", self)
         open_action.setShortcut(QKeySequence("Ctrl+O"))
         open_action.triggered.connect(self.open_file_dialog)
         file_menu.addAction(open_action)
+        
         menu_bar.addMenu("Tools")
         menu_bar.addMenu("Settings")
+        
         info_menu = menu_bar.addMenu("Info")
         about_action = QAction("About ePub Swift", self)
         about_action.triggered.connect(self.show_about_dialog)
         info_menu.addAction(about_action)
-        
+
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         # --- Drag and Drop Fix ---
         # Allow the central widget to accept drops so events reach the main window
         central_widget.setAcceptDrops(True)
-
+        
         main_layout = QHBoxLayout(central_widget)
         self.left_panel = QTabWidget()
         self.left_panel.setMinimumWidth(250)
@@ -89,35 +93,7 @@ class EpubReader(QMainWindow):
         splitter.setStretchFactor(1, 1)
         splitter.setHandleWidth(2)
         main_layout.addWidget(splitter)
-    
-    def show_welcome_message(self):
-        """Displays a fully centered and restyled welcome message."""
-        self.text_display.setHtml("""
-            <body style='margin:0; padding:0; height:100%;'>
-                <div style='display:flex; align-items:center; justify-content:center; height:90%;
-                            text-align:center; color:#7f8c8d; font-family:sans-serif;'>
-                    <div>
-                        <h1 style='font-size:22px; font-weight:bold; color:#2c3e50;'>Welcome to ePub Swift</h1>
-                        <p style='font-size:13px; line-height:1.6;'>
-                            Load a book from the <span class='key'>File</span> menu, press <span class='key'>Ctrl</span> + <span class='key'>O</span>
-                        </p>
-                        <p style='font-size:13px; line-height:1.6;'>
-                            or simply <b>drag and drop</b> an EPUB file here.
-                        </p>
-                        <style>
-                            .key {
-                                background-color: #e9e9ed; border: 1px solid #d1d1d1; border-radius: 4px;
-                                padding: 2px 6px; font-size: 11px;
-                                font-family: "Segoe UI", "Vazirmatn", monospace;
-                                color: #333;
-                            }
-                        </style>
-                    </div>
-                </div>
-            </body>
-        """)
 
-    # --- Other methods remain unchanged ---
     def apply_styles(self):
         self.setStyleSheet("""
             QProgressBar {
@@ -177,15 +153,46 @@ class EpubReader(QMainWindow):
         self.db_manager.save_progress(self.current_book_path, self.get_current_char_position())
         event.accept()
 
+    def show_welcome_message(self):
+        """Displays a fully centered and restyled welcome message."""
+        self.text_display.setHtml("""
+            <body style='margin:0; padding:0; height:100%;'>
+                <div style='display:flex; align-items:center; justify-content:center; height:90%;
+                            text-align:center; color:#7f8c8d; font-family:sans-serif;'>
+                    <div>
+                        <h1 style='font-size:22px; font-weight:bold; color:#2c3e50;'>Welcome to ePub Swift</h1>
+                        <p style='font-size:13px; line-height:1.6;'>
+                            Load a book from the <span class='key'>File</span> menu, press <span class='key'>Ctrl</span> + <span class='key'>O</span>
+                        </p>
+                        <p style='font-size:13px; line-height:1.6;'>
+                            or simply <b>drag and drop</b> an EPUB file here.
+                        </p>
+                        <style>
+                            .key {
+                                background-color: #e9e9ed; border: 1px solid #d1d1d1; border-radius: 4px;
+                                padding: 2px 6px; font-size: 11px;
+                                font-family: "Segoe UI", "Vazirmatn", monospace;
+                                color: #333;
+                            }
+                        </style>
+                    </div>
+                </div>
+            </body>
+        """)
+
     def load_book(self, file_path):
         if not file_path:
             return
+        
         self.db_manager.save_progress(self.current_book_path, self.get_current_char_position())
+        
         self.toc_list.clear()
         self.text_display.clear()
         self.progress_bar.setValue(0)
         self.current_book_path = file_path
+        
         self.loading_spinner.start_animation()
+        
         self.worker_thread = QThread()
         self.worker = BookLoaderWorker(file_path)
         self.worker.moveToThread(self.worker_thread)
@@ -290,12 +297,47 @@ class EpubReader(QMainWindow):
             scrollbar.setValue(new_scroll_value)
 
     def load_assets(self):
+        # Correctly find the project root from the ui subdirectory
         base_path = os.path.dirname(os.path.abspath(__file__))
-        font_path = os.path.join(base_path, '..', 'assets', 'fonts', 'Vazirmatn-Medium.ttf')
+        project_root = os.path.abspath(os.path.join(base_path, '..'))
+        
+        font_path = os.path.join(project_root, 'assets', 'fonts', 'Vazirmatn-Medium.ttf')
         if os.path.exists(font_path):
             font_id = QFontDatabase.addApplicationFont(font_path)
             if font_id != -1:
                 font_families = QFontDatabase.applicationFontFamilies(font_id)
                 app_font = QFont(font_families[0], 10)
                 QApplication.instance().setFont(app_font)
-        icon_path = os.path.join(base_path, '..', 'assets', 'icons', 'app_icon.
+                
+        icon_path = os.path.join(project_root, 'assets', 'icons', 'app_icon.png')
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
+
+    def update_window_title(self, book_title=None):
+        if book_title: self.setWindowTitle(f"{book_title} - {self.app_name} ({self.author_name})")
+        else: self.setWindowTitle(f"{self.app_name} ({self.author_name})")
+
+    def open_file_dialog(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Select an EPUB File", "", "EPUB Files (*.epub)")
+        self.load_book(file_path)
+
+    def update_library(self, file_path, book_title):
+        if any(b['path'] == file_path for b in self.library): return
+        new_book_data = {'path': file_path, 'title': book_title, 'pages': len(self.chapters), 'last_read_pos': 0}
+        self.library.append(new_book_data)
+        self.db_manager.add_or_update_book(new_book_data)
+        self.refresh_library_list()
+
+    def refresh_library_list(self):
+        self.library_list.clear()
+        for book in self.library:
+            item_text = f"📖 {book['title']}\n📄 Chapters: {book['pages']}"
+            list_item = QListWidgetItem(item_text)
+            list_item.setData(Qt.UserRole, book['path'])
+            self.library_list.addItem(list_item)
+    
+    def load_book_from_library(self, item):
+        self.db_manager.save_progress(self.current_book_path, self.get_current_char_position())
+        file_path = item.data(Qt.UserRole)
+        if file_path and file_path != self.current_book_path:
+            self.load_book(file_path)
