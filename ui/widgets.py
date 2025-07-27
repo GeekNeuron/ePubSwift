@@ -1,16 +1,16 @@
 # ui/widgets.py
-from PySide6.QtWidgets import QProgressBar, QWidget
+from PySide6.QtWidgets import QProgressBar, QWidget, QDialog, QLabel, QPushButton, QVBoxLayout, QHBoxLayout
 from PySide6.QtGui import QPainter, QPen, QColor
 from PySide6.QtCore import Qt, Signal, QRect, QTimer
 
-# ClickableProgressBar remains mostly the same
 class ClickableProgressBar(QProgressBar):
+    """A custom progress bar that is clickable and has reactive text color."""
     jump_requested = Signal(float)
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setCursor(Qt.PointingHandCursor)
-        self.setTextVisible(False)
+        self.setTextVisible(False) # We draw the text manually for reactive color
 
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -25,6 +25,7 @@ class ClickableProgressBar(QProgressBar):
         font.setBold(True)
         painter.setFont(font)
         
+        # 1. Draw the white text part (clipped to the blue chunk)
         pen_white = QPen(QColor("white"))
         painter.setPen(pen_white)
         clip_white = QRect(0, 0, chunk_width, self.height())
@@ -33,6 +34,7 @@ class ClickableProgressBar(QProgressBar):
         painter.drawText(self.rect(), Qt.AlignCenter, text)
         painter.restore()
         
+        # 2. Draw the dark blue text part (clipped to the gray background)
         pen_blue = QPen(QColor("#345B9A"))
         painter.setPen(pen_blue)
         clip_blue = QRect(chunk_width, 0, self.width() - chunk_width, self.height())
@@ -53,8 +55,8 @@ class ClickableProgressBar(QProgressBar):
         self.jump_requested.emit(percentage)
 
 
-# New Loading Spinner Widget
 class LoadingSpinner(QWidget):
+    """A modal loading spinner animation."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
@@ -64,7 +66,7 @@ class LoadingSpinner(QWidget):
         self.angle = 0
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_angle)
-        self.timer.setInterval(20) # 50 FPS
+        self.timer.setInterval(20) # Controls animation speed
 
     def update_angle(self):
         self.angle = (self.angle + 10) % 360
@@ -84,7 +86,7 @@ class LoadingSpinner(QWidget):
         pen.setCapStyle(Qt.RoundCap)
         painter.setPen(pen)
         
-        # Draw an arc
+        # Draw a smaller arc for a more subtle animation
         painter.drawArc(QRect(-20, -20, 40, 40), 0, 270 * 16)
 
     def start_animation(self):
@@ -96,3 +98,62 @@ class LoadingSpinner(QWidget):
     def stop_animation(self):
         self.timer.stop()
         self.hide()
+
+
+class AboutDialog(QDialog):
+    """A dialog to show application information and developer links."""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("About ePub Swift")
+        self.setFixedSize(380, 220)
+        self.setWindowModality(Qt.ApplicationModal)
+
+        layout = QVBoxLayout(self)
+        layout.setAlignment(Qt.AlignCenter)
+        
+        title_font = self.font()
+        title_font.setPointSize(16)
+        title_font.setBold(True)
+        
+        title_label = QLabel("ePub Swift v1.0")
+        title_label.setFont(title_font)
+        title_label.setAlignment(Qt.AlignCenter)
+
+        dev_label = QLabel("Developed by GeekNeuron")
+        dev_label.setAlignment(Qt.AlignCenter)
+
+        support_label = QLabel("For support, contributions, and contact:")
+        support_label.setAlignment(Qt.AlignCenter)
+
+        links_widget = QWidget()
+        links_layout = QHBoxLayout(links_widget)
+        links_layout.setAlignment(Qt.AlignCenter)
+        links_layout.setSpacing(20)
+
+        # Using rich text (HTML) in labels to create clickable links
+        github_link = "<a href='https://github.com/GeekNeuron' style='text-decoration:none; color:#345B9A;'>GitHub</a>"
+        telegram_link = "<a href='https://t.me/GeekNeuron' style='text-decoration:none; color:#345B9A;'>Telegram</a>"
+        twitter_link = "<a href='https://twitter.com/GeekNeuron' style='text-decoration:none; color:#345B9A;'>Twitter</a>"
+        
+        github_label = QLabel(github_link)
+        github_label.setOpenExternalLinks(True)
+        telegram_label = QLabel(telegram_link)
+        telegram_label.setOpenExternalLinks(True)
+        twitter_label = QLabel(twitter_link)
+        twitter_label.setOpenExternalLinks(True)
+
+        links_layout.addWidget(github_label)
+        links_layout.addWidget(telegram_label)
+        links_layout.addWidget(twitter_label)
+        
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(self.accept)
+        close_button.setFixedWidth(100)
+
+        layout.addWidget(title_label)
+        layout.addWidget(dev_label)
+        layout.addSpacing(20)
+        layout.addWidget(support_label)
+        layout.addWidget(links_widget)
+        layout.addStretch()
+        layout.addWidget(close_button, 0, Qt.AlignCenter)
