@@ -1,5 +1,5 @@
 # ui/widgets.py
-from PySide6.QtWidgets import QProgressBar, QWidget, QDialog, QLabel, QPushButton, QVBoxLayout, QHBoxLayout
+from PySide6.QtWidgets import QProgressBar, QWidget, QDialog, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QFrame
 from PySide6.QtGui import QPainter, QPen, QColor
 from PySide6.QtCore import Qt, Signal, QRect, QTimer
 
@@ -105,35 +105,36 @@ class AboutDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("About ePub Swift")
-        self.setFixedSize(380, 220)
+        self.setFixedSize(380, 200)
         self.setWindowModality(Qt.ApplicationModal)
-        
-        # Main layout for the dialog
-        main_layout = QVBoxLayout(self)
-        
-        # Card widget to hold the content, styled like the main UI
-        card_widget = QWidget(self)
-        card_widget.setObjectName("Card")
-        
-        content_layout = QVBoxLayout(card_widget)
-        content_layout.setAlignment(Qt.AlignCenter)
-        content_layout.setContentsMargins(20, 20, 20, 20)
 
+        main_layout = QVBoxLayout(self)
+        main_layout.setAlignment(Qt.AlignCenter)
+        main_layout.setContentsMargins(20, 15, 20, 15)
+
+        # --- Top Section ---
         title_font = self.font()
         title_font.setPointSize(16)
         title_font.setBold(True)
-        
         title_label = QLabel("ePub Swift v1.0")
         title_label.setFont(title_font)
         title_label.setAlignment(Qt.AlignCenter)
-
         dev_label = QLabel("Developed by GeekNeuron")
         dev_label.setAlignment(Qt.AlignCenter)
+        
+        main_layout.addWidget(title_label)
+        main_layout.addWidget(dev_label)
+        
+        # --- Separator Line ---
+        separator1 = QFrame()
+        separator1.setFrameShape(QFrame.HLine)
+        separator1.setObjectName("Separator")
+        main_layout.addWidget(separator1)
 
+        # --- Middle Section ---
         support_label = QLabel("For support, contributions, and contact:")
         support_label.setAlignment(Qt.AlignCenter)
-
-        # Container for social links
+        
         links_widget = QWidget()
         links_layout = QHBoxLayout(links_widget)
         links_layout.setAlignment(Qt.AlignCenter)
@@ -155,23 +156,20 @@ class AboutDialog(QDialog):
         links_layout.addWidget(telegram_label)
         links_layout.addWidget(twitter_label)
         
-        content_layout.addWidget(title_label)
-        content_layout.addWidget(dev_label)
-        content_layout.addSpacing(20)
-        content_layout.addWidget(support_label)
-        content_layout.addWidget(links_widget)
-        content_layout.addStretch()
+        main_layout.addWidget(support_label)
+        main_layout.addWidget(links_widget)
+        main_layout.addStretch()
 
-        main_layout.addWidget(card_widget)
-
-        # Apply stylesheet to match the main application theme
+        # Apply stylesheet for a clean look
         self.setStyleSheet("""
             QDialog {
-                background-color: #f2f3f7;
-            }
-            QWidget#Card {
                 background-color: #ffffff;
-                border-radius: 8px;
+            }
+            QFrame#Separator {
+                border: none;
+                border-top: 1px dashed #cccccc;
+                margin-top: 10px;
+                margin-bottom: 10px;
             }
             QLabel {
                 color: #2c3e50;
