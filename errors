@@ -1,9 +1,11 @@
-C:\Users\Vatan\Desktop\py\11\ePubSwift-main>python main.py
+C:\Users\Vatan\Desktop\py\ePub Swift\ePubSwift-main>python main.py
 Traceback (most recent call last):
-  File "C:\Users\Vatan\Desktop\py\11\ePubSwift-main\ui\main_window.py", line 280, in open_file_dialog
-    self.load_book(file_path)
-  File "C:\Users\Vatan\Desktop\py\11\ePubSwift-main\ui\main_window.py", line 135, in load_book
-    if not file_path or (self.worker_thread and self.worker_thread.isRunning()):
-RuntimeError: Internal C++ object (PySide6.QtCore.QThread) already deleted.
+  File "C:\Users\Vatan\Desktop\py\ePub Swift\ePubSwift-main\main.py", line 16, in <module>
+    reader = EpubReader()
+  File "C:\Users\Vatan\Desktop\py\ePub Swift\ePubSwift-main\ui\main_window.py", line 33, in __init__
+    self.load_assets()
+  File "C:\Users\Vatan\Desktop\py\ePub Swift\ePubSwift-main\ui\main_window.py", line 324, in load_assets
+    QApplication.instance().setFont(app_font)
+NameError: name 'QApplication' is not defined
 
-C:\Users\Vatan\Desktop\py\11\ePubSwift-main>
+C:\Users\Vatan\Desktop\py\ePub Swift\ePubSwift-main>
